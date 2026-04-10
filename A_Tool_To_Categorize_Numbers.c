@@ -8,7 +8,7 @@
 #include <math.h>     // 用於數學函數
 #include <strings.h>  // 用於 strcasecmp
 
-// 1. 去除字串前後空白
+// 去除字串前後空白
 char *trim(char *s) {
     char *end;
     while (s && *s && isspace((unsigned char)*s)) s++;
@@ -19,7 +19,7 @@ char *trim(char *s) {
     return s;
 }
 
-// 2. 格式驗證
+// 檢驗非法字元
 int IsCompletelyInvalid(char *str) {
     int dot_count = 0, e_count = 0, digit_count = 0;
     int len = strlen(str);
@@ -50,12 +50,12 @@ int IsCompletelyInvalid(char *str) {
     return (digit_count == 0) ? 1 : 0; 
 }
 
-// 3. 判定是否為浮點格式
+// 判定是否為浮點格式
 int IsFloat(char *str) {
     return (strchr(str, '.') != NULL) || (strchr(str, 'e') != NULL) || (strchr(str, 'E') != NULL);
 }
 
-// 4. 整數分類 (Signed 優先)
+// 分類整數 (Signed 優先原則)
 void CategorizeInt(char *NumEntered) {
     if (NumEntered[0] == '-') {
         long long number = atoll(NumEntered); 
@@ -77,15 +77,14 @@ void CategorizeInt(char *NumEntered) {
     }
 }
 
-// 5. 浮點數分類建議
+// 分類浮點數
 void CategorizeFloat(char *str) {
-    // 雖然下面判斷用 double，但讀取用 strtold 可以確保不會在第一步就溢位
+    
     long double val = strtold(str, NULL); 
     int count = 0;
     char *dot = strchr(str, '.');
     if (dot != NULL) count = strlen(dot) - 1;
 
-    // 依據「由大到小」的階梯原則進行分類
     if (val > DBL_MAX || val < -DBL_MAX || count > 15) {
         printf("Suggest: long double\n");
     } 
@@ -107,7 +106,7 @@ int main() {
 
         char *numstr = trim(input);
 
-        // 指令檢查
+        // 輸入 help 就會顯示說明
         if (strcasecmp(numstr, "help") == 0) {
             printf("\n------------ HELP ------------\n1. Enter numbers to see types.\n2. Type 'exit' to quit.\n------------------------------\n\n");
             continue;
@@ -115,7 +114,7 @@ int main() {
         if (strcasecmp(numstr, "exit") == 0) break;
         if (strlen(numstr) == 0) continue;
 
-        // 判定流程
+        // 非法字元檢驗
         if (IsCompletelyInvalid(numstr)) {
             printf("Invalid input.\n");
         } else if (IsFloat(numstr)) {

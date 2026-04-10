@@ -1,6 +1,6 @@
 #include <stdio.h>    // 用於輸入輸出
-#include <ctype.h>    // 用於檢查字元類型
-#include <string.h>   // 用於字串操作與應用
+#include <ctype.h>    // 用於類別判定
+#include <string.h>   // 用於字串處理
 #include <stdbool.h>  // 用於使用布林值
 #include <stdlib.h>   // 用於將字串轉換為數值
 #include <limits.h>   // 用於定義整數範圍 
@@ -59,40 +59,55 @@ int IsFloat(char *str) {
 void CategorizeInt(char *NumEntered) {
     if (NumEntered[0] == '-') {
         long long number = atoll(NumEntered); 
-        if (number >= SCHAR_MIN && number <= SCHAR_MAX) printf("This is a character.\n");
-        else if (number >= SHRT_MIN && number <= SHRT_MAX) printf("This is a short integer.\n");
-        else if (number >= INT_MIN && number <= INT_MAX) printf("This is an integer.\n");
-        else printf("This is a long long integer.\n");
+        if (number >= SCHAR_MIN && number <= SCHAR_MAX) {
+            printf("Recommendation: Use \"signed char\" for storage.\nFormat Specifier: Use \"%%d\"\n");
+        }
+        else if (number >= SHRT_MIN && number <= SHRT_MAX) {
+            printf("Recommendation: Use \"short int\" for storage.\nFormat Specifier: Use \"%%hd\"\n");
+        }
+        else if (number >= INT_MIN && number <= INT_MAX) {
+            printf("Recommendation: Use \"int\" for storage.\nFormat Specifier: Use \"%%d\"\n");
+        }
+        else {
+            printf("Recommendation: Use \"long long int\" for storage.\nFormat Specifier: Use \"%%lld\"\n");
+        }
     } 
     else {
         unsigned long long number = strtoull(NumEntered, NULL, 10);
-        if (number <= (unsigned long long)SCHAR_MAX) printf("This is a character.\n");
-        else if (number <= (unsigned long long)UCHAR_MAX) printf("This is an unsigned character.\n");
-        else if (number <= (unsigned long long)SHRT_MAX) printf("This is a short integer.\n");
-        else if (number <= (unsigned long long)USHRT_MAX) printf("This is an unsigned short integer.\n");
-        else if (number <= (unsigned long long)INT_MAX) printf("This is an integer.\n");
-        else if (number <= (unsigned long long)UINT_MAX) printf("This is an unsigned integer.\n");
-        else if (number <= (unsigned long long)LLONG_MAX) printf("This is a long long integer.\n");
-        else printf("This is an unsigned long long integer.\n");
+        if (number <= (unsigned long long)SCHAR_MAX) 
+            printf("Recommendation: Use \"signed char\" for storage.\nFormat Specifier: Use \"%%d\"\n");
+        else if (number <= (unsigned long long)UCHAR_MAX) 
+            printf("Recommendation: Use \"unsigned char\" for storage.\nFormat Specifier: Use \"%%u\"\n");
+        else if (number <= (unsigned long long)SHRT_MAX) 
+            printf("Recommendation: Use \"short integer\" for storage.\nFormat Specifier: Use \"%%hd\"\n");
+        else if (number <= (unsigned long long)USHRT_MAX) 
+            printf("Recommendation: Use \"unsigned short integer\" for storage.\nFormat Specifier: Use \"%%hu\"\n");
+        else if (number <= (unsigned long long)INT_MAX) 
+            printf("Recommendation: Use \"integer\" for storage.\nFormat Specifier: Use \"%%d\"\n");
+        else if (number <= (unsigned long long)UINT_MAX) 
+            printf("Recommendation: Use \"unsigned integer\" for storage.\nFormat Specifier: Use \"%%u\"\n");
+        else if (number <= (unsigned long long)LLONG_MAX) 
+            printf("Recommendation: Use \"long long integer\" for storage.\nFormat Specifier: Use \"%%lld\"\n");
+        else 
+            printf("Recommendation: Use \"unsigned long long integer\" for storage.\nFormat Specifier: Use \"%%llu\"\n");
     }
 }
 
 // 分類浮點數
 void CategorizeFloat(char *str) {
-    
     long double val = strtold(str, NULL); 
     int count = 0;
     char *dot = strchr(str, '.');
     if (dot != NULL) count = strlen(dot) - 1;
 
     if (val > DBL_MAX || val < -DBL_MAX || count > 15) {
-        printf("Suggest: long double\n");
+        printf("Recommendation: Use \"long double\" for storage.\nFormat Specifier: Use \"%%Lf\"\n");
     } 
     else if (count > 6 || val > FLT_MAX || val < -FLT_MAX) {
-        printf("Suggest: double\n");
+        printf("Recommendation: Use \"double\" for storage.\nFormat Specifier: Use \"%%lf\"\n");
     } 
     else {
-        printf("Suggest: float\n");
+        printf("Recommendation: Use \"float\" for storage.\nFormat Specifier: Use \"%%f\"\n");
     }
 }
 
@@ -101,12 +116,11 @@ int main() {
     char choice;
 
     while (1) {
-        printf("Please enter a number: ");
+        printf("Please enter a number (or type 'help' for instructions, 'exit' to quit): ");
         if (fgets(input, sizeof(input), stdin) == NULL) break;
 
         char *numstr = trim(input);
 
-        // 輸入 help 就會顯示說明
         if (strcasecmp(numstr, "help") == 0) {
             printf("\n------------ HELP ------------\n1. Enter numbers to see types.\n2. Type 'exit' to quit.\n------------------------------\n\n");
             continue;
@@ -114,7 +128,6 @@ int main() {
         if (strcasecmp(numstr, "exit") == 0) break;
         if (strlen(numstr) == 0) continue;
 
-        // 非法字元檢驗
         if (IsCompletelyInvalid(numstr)) {
             printf("Invalid input.\n");
         } else if (IsFloat(numstr)) {
@@ -123,8 +136,7 @@ int main() {
             CategorizeInt(numstr); 
         }
 
-        // 詢問是否重新啟動程式
-        printf("Restart? (y/n): ");
+        printf("\nRestart? (y/n): ");
         if (scanf(" %c", &choice) != 1) break;
         while (getchar() != '\n'); 
 
